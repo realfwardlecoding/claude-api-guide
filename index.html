@@ -1,0 +1,369 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Claude中转站怎么用？Claude API国内调用与接入完整教程</title>
+  <meta name="description" content="Claude中转站怎么选？本文详细介绍Claude API是什么、Claude国内调用方式、Claude API接口配置、OpenAI兼容调用方法、cURL与Python示例、模型选择、计费和常见报错处理，帮助开发者快速完成Claude API接入。">
+  <meta name="keywords" content="Claude中转站, Claude API, Claude调用, Claude国内调用, Claude接口, Claude API国内, Claude中转API, Claude模型, Claude开发者接入, Claude API教程, Claude代码调用, Claude接口调用">
+  <meta name="author" content="作者名称">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://quanzil.com/articles/how-to-call-gpt-api-in-china.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ai api">
+  <meta property="og:title" content="Claude中转站怎么用？Claude API国内调用与接入完整教程">
+  <meta property="og:description" content="Claude中转站怎么选？本文详细介绍Claude API是什么、Claude国内调用方式、Claude API接口配置、OpenAI兼容调用方法、cURL与Python示例、模型选择、计费和常见报错处理，帮助开发者快速完成Claude API接入。">
+  <meta property="og:url" content="https://quanzil.com/articles/how-to-call-gpt-api-in-china.html">
+  <meta property="og:image" content="https://quanzil.com/images/article-cover.jpg">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Claude中转站怎么用？Claude API国内调用与接入完整教程">
+  <meta name="twitter:description" content="Claude中转站怎么选？本文详细介绍Claude API是什么、Claude国内调用方式、Claude API接口配置、OpenAI兼容调用方法、cURL与Python示例、模型选择、计费和常见报错处理，帮助开发者快速完成Claude API接入。">
+  <meta name="twitter:image" content="https://quanzil.com/images/article-cover.jpg">
+
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --surface: #fff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #2563eb;
+      --accent-light: #eff6ff;
+      --code-bg: #111827;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      line-height: 1.8;
+    }
+    a { color: var(--accent); }
+    .site-header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.97);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+    .header-inner, .page, .site-footer {
+      width: min(100% - 32px, 1100px);
+      margin: 0 auto;
+    }
+    .header-inner {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: max-content;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, .2);
+    }
+    .brand-copy {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+    .brand {
+      color: var(--text);
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .brand-tagline {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .main-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+      margin-right: 22px;
+    }
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 0 11px;
+      border-radius: 7px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      white-space: nowrap;
+      transition: color .2s ease, background .2s ease;
+    }
+    .nav-link:hover, .nav-link.active {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+    .page { padding: 56px 0 72px; }
+    .article {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: clamp(24px, 5vw, 64px);
+      box-shadow: 0 8px 30px rgba(15, 23, 42, .04);
+    }
+    .article-header { margin-bottom: 40px; }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    h1 {
+      margin: 0 0 16px;
+      color: #111827;
+      font-size: clamp(30px, 5vw, 46px);
+      line-height: 1.25;
+      letter-spacing: -.02em;
+    }
+    .summary {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header-target {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, .18);
+      transition: background .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    .header-target:hover {
+      background: #1d4ed8;
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(37, 99, 235, .25);
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .markdown-body { font-size: 17px; }
+    .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+      margin: 2em 0 .7em;
+      color: #111827;
+      line-height: 1.35;
+    }
+    .markdown-body h2 {
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      font-size: 28px;
+    }
+    .markdown-body h3 { font-size: 22px; }
+    .markdown-body p, .markdown-body ul, .markdown-body ol, .markdown-body blockquote { margin: 1em 0; }
+    .markdown-body img { max-width: 100%; height: auto; border-radius: 8px; }
+    .markdown-body blockquote {
+      margin-left: 0;
+      padding: 12px 18px;
+      border-left: 3px solid var(--accent);
+      background: var(--accent-light);
+      color: #374151;
+    }
+    .markdown-body code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #f3f4f6;
+      font-size: .9em;
+    }
+    .markdown-body pre {
+      overflow-x: auto;
+      padding: 18px;
+      border-radius: 8px;
+      background: var(--code-bg);
+      color: #e5e7eb;
+      line-height: 1.6;
+    }
+    .markdown-body pre code { padding: 0; background: transparent; color: inherit; }
+    .markdown-body table { display: block; overflow-x: auto; border-collapse: collapse; width: 100%; }
+    .markdown-body th, .markdown-body td { padding: 9px 12px; border: 1px solid var(--line); text-align: left; }
+    .markdown-body th { background: #f9fafb; }
+    .site-footer { padding: 24px 0 48px; color: var(--muted); font-size: 13px; text-align: center; }
+    @media (max-width: 640px) {
+      .header-inner { min-height: 56px; }
+      .brand-tagline, .main-nav { display: none; }
+      .page { padding: 24px 0 40px; }
+      .article { padding: 22px 18px; }
+      .markdown-body { font-size: 16px; }
+      .header-actions { gap: 10px; }
+      .header-target { padding: 8px 11px; font-size: 13px; }
+      .brand-mark { width: 31px; height: 31px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a id="site-brand" class="brand-wrap" href="https://quanzil.com/" aria-label="返回网站首页">
+        <span id="brand-mark" class="brand-mark">AI</span>
+        <span class="brand-copy">
+          <span id="brand-name" class="brand">API</span>
+          <span id="brand-tagline" class="brand-tagline">让技术更简单</span>
+        </span>
+      </a>
+      <nav class="main-nav" aria-label="主导航">
+        <a id="nav-home" class="nav-link active" href="https://quanzil.com/">首页</a>
+        <a id="nav-articles" class="nav-link" href="https://quanzil.com/pricing">模型价格</a>
+        <a id="nav-docs" class="nav-link" href="https://docs.quanzil.com/">API 文档</a>
+        <a id="nav-pricing" class="nav-link" href="https://quanzil.com/news/focus">文章资讯</a>
+      </nav>
+      <div class="header-actions">
+        <a id="header-target" class="header-target" href="https://quanzil.com/" target="_blank" rel="noopener noreferrer">进入 API 中转站 →</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <article class="article" itemscope itemtype="https://schema.org/Article">
+      <header class="article-header">
+        <p class="eyebrow">原创文章</p>
+        <h1 id="article-title" itemprop="headline">Claude中转站怎么用？Claude API国内调用与接入完整教程</h1>
+        <p id="article-summary" class="summary" itemprop="description">Claude中转站怎么选？本文详细介绍Claude API是什么、Claude国内调用方式、Claude API接口配置、OpenAI兼容调用方法、cURL与Python示例、模型选择、计费和常见报错处理，帮助开发者快速完成Claude API接入。</p>
+        <div class="meta">
+          <span>作者：<span id="article-author" itemprop="author">ai agent</span></span>
+          <span>发布时间：<time id="publish-date" itemprop="datePublished" datetime="2026-09-18">2026年09月18日</time></span>
+          <span>更新时间：<time id="update-date" itemprop="dateModified"></time></span>
+        </div>
+      </header>
+
+      <div id="markdown-content" class="markdown-body" itemprop="articleBody"></div>
+      <script type="application/json" id="article-markdown">
+"很多开发者搜索“**Claude中转站**”“**Claude API 国内调用**”或者“**Claude 怎么调用**”，本质上都是想把 Claude 接入自己的项目。\n\n例如：\n\n- 在网站中接入 Claude 智能问答\n- 开发 Claude 聊天机器人\n- 使用 Claude 进行代码生成和代码分析\n- 调用 Claude 处理长文本和文档\n- 将 Claude 接入企业内部系统\n- 通过 Claude API 搭建自动化工作流\n\n先直接回答：\n\n- **Claude API** 是通过程序调用 Claude 模型能力的接口\n- **Claude 中转站** 通常提供兼容 Claude 或 OpenAI 格式的 API 接口\n- 国内开发者接入 Claude 时，重点需要关注接口地址、API Key、模型名称、计费方式和调用稳定性\n- 如果希望降低接入和适配成本，可以优先选择支持统一 API 格式的 Claude 中转 API\n\n**Claude API 中转站推荐：**\n\n\u003e Claude API 中转站平台地址：\u003chttps://quanzil.com\u003e\n\n\u003e Claude API 中转站平台地址：\u003chttps://quanzil.net\u003e\n\n本文将从 Claude API 是什么开始，介绍 Claude 中转站的基本使用方式，并提供可以直接参考的 cURL 和 Python 调用示例。\n\n---\n\n## Claude API 是什么\n\nClaude API 是 Anthropic 提供的模型调用接口。\n\n与直接在网页端使用 Claude 不同，Claude API 面向开发者，能够让你在自己的应用、网站、服务器或自动化工具中调用 Claude 的文本理解和生成能力。\n\n简单来说：\n\n- Claude 网页端适合人工对话\n- Claude API 适合程序调用\n- Claude 中转站适合需要更方便接入 Claude API 的开发者\n\n通过 Claude API，你可以将 Claude 集成到自己的业务流程中，而不需要用户手动打开聊天页面。\n\n---\n\n## Claude API 可以做什么\n\nClaude 适合处理大量文本理解、内容生成和代码相关任务。\n\n常见使用场景包括：\n\n- AI 客服和在线问答\n- 长文档总结\n- 合同和报告分析\n- 内容改写与润色\n- 多语言翻译\n- 代码生成\n- 代码解释和排错\n- 技术文档编写\n- 知识库问答\n- 企业内部助手\n- 自动化数据处理\n- 内容审核和分类\n- 复杂指令执行\n\n例如，你可以让 Claude：\n\n- 总结一份很长的会议记录\n- 从合同中提取关键条款\n- 分析一段程序代码\n- 将一篇文章改写成不同风格\n- 根据产品需求生成技术方案\n- 结合上下文连续回答用户问题\n\n---\n\n## 什么是 Claude 中转站\n\nClaude 中转站通常是指提供 Claude API 代理或统一接口服务的平台。\n\n开发者通过中转站提供的 API Key 和请求地址调用 Claude，而不需要在代码中直接处理复杂的网络环境、账户配置或多平台适配问题。\n\nClaude 中转站通常会提供：\n\n- Claude API 访问入口\n- API Key 管理\n- 统一的请求地址\n- 多个 Claude 模型选择\n- 账户余额或用量查询\n- 调用日志\n- 错误信息查看\n- OpenAI 兼容接口\n- Claude 原生格式接口\n\n不同平台的服务内容可能不同，实际使用前建议查看平台的模型列表、价格说明和开发文档。\n\n相关内容可以参考：\n\n- [API中转站是什么？一篇看懂大模型 API 中转的作用与适用场景](/blog/api-middleman/what-is-api-middleman.html)\n- [大模型 API 中转和官方 API 有什么区别？开发者如何选择](/blog/api-middleman/api-middleman-vs-official-api.html)\n- [价格说明](/pricing.html)\n- [开发文档](/docs.html)\n\n---\n\n## Claude 国内怎么调用\n\n国内开发者调用 Claude API，通常有两种方式：\n\n### 方式一：直接使用 Claude 官方 API\n\n如果你的开发环境可以稳定访问官方 API，并且已经完成账户、付款和开发者配置，可以直接按照官方文档进行接入。\n\n这种方式的特点是：\n\n- 接口来源直接\n- 可以使用官方提供的能力\n- 需要自行处理账户和付款\n- 需要自行维护接口配置\n- 对网络环境和服务稳定性有一定要求\n\n适合已经具备完整开发条件，并且只希望使用官方接口的团队。\n\n---\n\n### 方式二：使用 Claude API 中转站\n\n如果你希望更快开始测试 Claude，或者希望通过统一方式管理 Claude API，可以选择 Claude 中转站。\n\n通常只需要准备：\n\n1. 中转站 API Key\n2. 中转站提供的 Base URL\n3. 平台支持的 Claude 模型名称\n4. 一段符合接口格式的调用代码\n\nClaude 中转站的优势通常包括：\n\n- 接入流程更简单\n- 不需要重复适配复杂账户配置\n- 可以通过统一接口调用 Claude\n- 更适合国内开发者进行项目测试\n- 方便在不同 Claude 模型之间切换\n- 便于集中管理 API Key 和调用记录\n\n实际接入前，应确认平台是否明确提供 Claude API 服务，以及对应模型和接口格式是否与你的代码兼容。\n\n---\n\n## Claude API 调用前需要准备什么\n\n### 1. 准备 API Key\n\nAPI Key 用于验证调用身份。\n\n请求时通常需要放在请求头中：\n\n```http\nAuthorization: Bearer YOUR_API_KEY\n```\n\n有些 Claude 原生接口可能使用不同的请求头格式，例如：\n\n```http\nx-api-key: YOUR_API_KEY\n```\n\n具体使用哪种格式，要根据你接入的平台文档确定。\n\nAPI Key 使用时需要注意：\n\n- 不要将 API Key 写入前端代码\n- 不要将 API Key 提交到公开代码仓库\n- 不要将 API Key 直接发给其他人\n- 建议使用环境变量管理密钥\n- 不同项目尽量使用不同的 API Key\n- 发现密钥泄露后及时禁用或更换\n\n例如：\n\n```bash\nexport CLAUDE_API_KEY=\"YOUR_API_KEY\"\n```\n\n---\n\n### 2. 获取 Base URL\n\nClaude API 的请求地址取决于你使用的服务平台。\n\nClaude 中转站常见的请求地址形式可能是：\n\n```text\nhttps://example.com/v1\n```\n\n如果平台提供的是 OpenAI 兼容接口，聊天接口通常类似：\n\n```text\nhttps://example.com/v1/chat/completions\n```\n\n如果平台提供的是 Claude 原生 Messages API，接口可能类似：\n\n```text\nhttps://example.com/v1/messages\n```\n\n注意：\n\n- 不同平台的 Base URL 不一定相同\n- `/v1` 是否需要填写，要以平台文档为准\n- OpenAI 兼容接口和 Claude 原生接口的请求格式可能不同\n- 不要直接照搬其他平台的 URL\n\n---\n\n### 3. 获取模型名称\n\n调用 Claude 时，`model` 字段必须填写平台支持的模型名称。\n\n模型名称可能会随着平台和版本变化，因此建议直接从 Claude 中转站的模型列表中复制。\n\n示例：\n\n```json\n{\n  \"model\": \"claude-model-name\"\n}\n```\n\n不要仅凭网上文章猜测模型名称。模型不存在、模型名称拼写错误或模型没有权限，都会导致调用失败。\n\n---\n\n## Claude API 的基本调用流程\n\nClaude API 的基本调用流程通常包括以下步骤：\n\n1. 注册并登录 Claude API 服务平台\n2. 创建或获取 API Key\n3. 查看平台支持的 Claude 模型\n4. 获取 Base URL\n5. 选择原生 Claude 格式或 OpenAI 兼容格式\n6. 发送测试请求\n7. 根据返回结果接入自己的业务代码\n\n建议第一次调用时，先发送最简单的文本请求，确认以下内容正常：\n\n- API Key 是否有效\n- 请求地址是否正确\n- 模型名称是否正确\n- 请求格式是否正确\n- 账户余额或调用额度是否充足\n\n确认最小请求成功后，再逐步加入系统提示词、历史消息、流式输出和业务逻辑。\n\n---\n\n## Claude API 使用 OpenAI 兼容格式调用\n\n很多 Claude 中转站会提供 OpenAI 兼容接口。\n\n这种方式适合已经使用 OpenAI SDK，或者希望减少代码改动的开发者。\n\n### cURL 调用 Claude 示例\n\n下面是一个兼容 OpenAI Chat Completions 格式的示例：\n\n```bash\ncurl https://your-claude-api-domain.com/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -d '{\n    \"model\": \"claude-model-name\",\n    \"messages\": [\n      {\n        \"role\": \"user\",\n        \"content\": \"请用三句话介绍 Claude API。\"\n      }\n    ],\n    \"temperature\": 0.7,\n    \"max_tokens\": 1000,\n    \"stream\": false\n  }'\n```\n\n请将以下内容替换为平台提供的实际信息：\n\n- `https://your-claude-api-domain.com/v1/chat/completions`\n- `YOUR_API_KEY`\n- `claude-model-name`\n\n---\n\n### Python 调用 Claude 示例\n\n使用 Python `requests` 调用 Claude 中转 API：\n\n```python\nimport os\nimport requests\n\nurl = \"https://your-claude-api-domain.com/v1/chat/completions\"\napi_key = os.environ[\"CLAUDE_API_KEY\"]\n\npayload = {\n    \"model\": \"claude-model-name\",\n    \"messages\": [\n        {\n            \"role\": \"user\",\n            \"content\": \"请用三句话介绍 Claude API。\"\n        }\n    ],\n    \"temperature\": 0.7,\n    \"max_tokens\": 1000,\n    \"stream\": False\n}\n\nheaders = {\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": f\"Bearer {api_key}\"\n}\n\nresponse = requests.post(\n    url,\n    json=payload,\n    headers=headers,\n    timeout=60\n)\n\nresponse.raise_for_status()\nprint(response.json())\n```\n\n运行前先设置环境变量：\n\n```bash\nexport CLAUDE_API_KEY=\"YOUR_API_KEY\"\n```\n\nWindows PowerShell 可以使用：\n\n```powershell\n$env:CLAUDE_API_KEY=\"YOUR_API_KEY\"\n```\n\n---\n\n## 使用 OpenAI SDK 调用 Claude\n\n如果 Claude 中转站提供 OpenAI 兼容接口，通常可以通过修改 `base_url` 和 `api_key` 的方式调用。\n\nPython 示例：\n\n```python\nimport os\nfrom openai import OpenAI\n\nclient = OpenAI(\n    api_key=os.environ[\"CLAUDE_API_KEY\"],\n    base_url=\"https://your-claude-api-domain.com/v1\"\n)\n\nresponse = client.chat.completions.create(\n    model=\"claude-model-name\",\n    messages=[\n        {\n            \"role\": \"user\",\n            \"content\": \"请解释 Claude API 适合哪些应用场景。\"\n        }\n    ],\n    max_tokens=1000\n)\n\nprint(response.choices[0].message.content)\n```\n\n需要注意的是，虽然代码使用了 OpenAI SDK，但实际调用的模型仍然是 Claude。\n\n这里的关键是：\n\n- `base_url` 要填写中转站提供的地址\n- `model` 要填写平台支持的 Claude 模型\n- 参数名称要符合平台的兼容规则\n- 某些 Claude 特有能力可能无法通过通用兼容接口完整使用\n\n如果你需要使用 Claude 的特殊功能，建议优先查看平台是否提供 Claude 原生接口。\n\n---\n\n## Claude 原生 Messages API 调用方式\n\n部分平台支持 Claude 原生 Messages API 格式。\n\n常见请求结构包括：\n\n- `model`\n- `max_tokens`\n- `messages`\n- `system`\n- `temperature`\n\n示例：\n\n```bash\ncurl https://your-claude-api-domain.com/v1/messages \\\n  -H \"Content-Type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -d '{\n    \"model\": \"claude-model-name\",\n    \"max_tokens\": 1000,\n    \"system\": \"你是一名专业的技术顾问。\",\n    \"messages\": [\n      {\n        \"role\": \"user\",\n        \"content\": \"请解释 Claude API 的基本调用流程。\"\n      }\n    ]\n  }'\n```\n\n不同 Claude 中转站对请求头、版本号和接口路径的要求可能不同，实际调用时必须以平台开发文档为准。\n\n---\n\n## Claude API 请求参数说明\n\n### model\n\n`model` 用于指定 Claude 模型。\n\n它会影响：\n\n- 输出质量\n- 响应速度\n- 调用成本\n- 上下文处理能力\n- 适合的任务类型\n\n调用前建议从平台模型列表复制准确名称。\n\n---\n\n### messages\n\n`messages` 用于传递对话消息和上下文。\n\n示例：\n\n```json\n[\n  {\n    \"role\": \"user\",\n    \"content\": \"请总结这段文字。\"\n  }\n]\n```\n\n多轮对话可以继续添加历史消息：\n\n```json\n[\n  {\n    \"role\": \"user\",\n    \"content\": \"什么是 API？\"\n  },\n  {\n    \"role\": \"assistant\",\n    \"content\": \"API 是应用程序接口。\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"请用更简单的方式解释。\"\n  }\n]\n```\n\n对话历史越长，消耗的输入 token 通常也越多。\n\n---\n\n### system\n\n`system` 用于设定 Claude 的身份、语气和任务规则。\n\n例如：\n\n```json\n{\n  \"system\": \"你是一名专业的中文技术写作助手，回答要准确、简洁、结构清晰。\"\n}\n```\n\n合理的 system 提示词可以帮助 Claude：\n\n- 固定输出风格\n- 约束回答格式\n- 减少无关内容\n- 提高任务一致性\n- 更好地适配业务场景\n\n---\n\n### max_tokens\n\n`max_tokens` 用于限制模型最多生成的 token 数量。\n\n设置过小，可能导致回答不完整；设置过大，则可能增加调用成本和等待时间。\n\n建议根据实际任务设置：\n\n- 简单问答使用较小值\n- 长文总结使用更大值\n- 固定格式输出时设置合理上限\n- 生产环境避免无限制生成\n\n---\n\n### temperature\n\n`temperature` 用于影响输出的随机性。\n\n通常可以这样理解：\n\n- 较低值：输出更稳定，更适合分类、抽取、代码和格式化任务\n- 较高值：表达更灵活，更适合创意写作和内容生成\n\n不是所有接口都支持完全相同的参数，具体以 Claude 中转站文档为准。\n\n---\n\n### stream\n\n`stream` 用于控制是否使用流式输出。\n\n```json\n{\n  \"stream\": true\n}\n```\n\n开启流式输出后，模型会逐步返回内容，适合：\n\n- 聊天窗口\n- 在线客服\n- 实时写作\n- 长文本生成\n- 需要降低首字节等待感知的场景\n\n如果只是进行后台任务或数据处理，可以先使用非流式请求。\n\n---\n\n## Claude 模型怎么选择\n\n选择 Claude 模型时，不建议只看模型名称，而要结合具体任务。\n\n### 轻量 Claude 模型\n\n通常适合：\n\n- 简单问答\n- 文本分类\n- 信息抽取\n- 短文本改写\n- 批量数据处理\n- 成本敏感型应用\n- 高并发接口服务\n\n这类模型通常响应速度较快，调用成本相对可控，适合产品原型和大规模基础任务。\n\n---\n\n### 高能力 Claude 模型\n\n通常适合：\n\n- 复杂内容分析\n- 长文档理解\n- 代码生成和代码审查\n- 技术方案编写\n- 多步骤任务\n- 对输出质量要求较高的业务\n\n这类模型通常具备更强的理解和生成能力，但对应的调用成本和响应时间也可能更高。\n\n---\n\n### Claude 模型选择建议\n\n可以按照下面的方式进行选择：\n\n- 先用轻量模型完成接口测试\n- 使用真实业务数据评估回答质量\n- 对复杂任务单独测试高能力模型\n- 记录响应速度、成本和错误率\n- 不要所有请求都默认使用高成本模型\n\n例如：\n\n- FAQ 和简单客服使用轻量模型\n- 长文档分析使用更强的 Claude 模型\n- 代码审查根据代码规模选择模型\n- 高价值任务可以使用质量更高的模型\n- 批量任务需要重点控制 token 消耗\n\n---\n\n## Claude API 如何控制调用成本\n\nClaude API 的费用通常与输入和输出 token 数量有关。\n\n以下情况可能增加成本：\n\n- system 提示词过长\n- 每次都携带完整历史消息\n- 上传或传入过多无关内容\n- 输出限制设置过大\n- 反复发送重复请求\n- 对简单任务使用高能力模型\n\n可以采用以下方式控制成本：\n\n### 减少无关上下文\n\n只保留完成当前任务所需要的信息，不要把所有历史对话永久传给模型。\n\n### 控制输出长度\n\n根据业务目标设置合理的 `max_tokens`，避免模型输出大量无关内容。\n\n### 区分任务类型\n\n简单分类、关键词提取和短文本改写，不一定需要使用高能力 Claude 模型。\n\n### 设计缓存机制\n\n对于重复问题或固定内容，可以缓存结果，减少重复调用。\n\n### 增加请求监控\n\n建议记录以下数据：\n\n- 每次请求的输入 token\n- 每次请求的输出 token\n- 使用的模型\n- 响应时间\n- 请求成功率\n- 错误类型\n- 每日和每月调用量\n\n这样才能知道 Claude API 的真实使用成本。\n\n---\n\n## Claude API 常见报错处理\n\n### 401 Unauthorized\n\n通常表示鉴权失败。\n\n可能原因包括：\n\n- API Key 错误\n- API Key 已失效\n- 请求头格式错误\n- 使用了错误的 Base URL\n- 当前 Key 没有调用权限\n\n排查顺序：\n\n1. 检查 API Key 是否复制完整\n2. 检查是否正确添加 `Bearer` 或 `x-api-key`\n3. 检查请求地址是否为平台提供的地址\n4. 检查当前 Key 是否有余额或调用权限\n5. 检查模型名称是否属于当前账户\n\n---\n\n### 400 Bad Request\n\n通常表示请求参数不符合接口要求。\n\n常见原因：\n\n- `model` 参数错误\n- `messages` 格式错误\n- 缺少 `max_tokens`\n- 参数名称不被接口支持\n- OpenAI 格式和 Claude 原生格式混用\n- JSON 格式不正确\n\n建议先使用平台提供的最小示例测试，再逐个增加参数。\n\n---\n\n### 404 Not Found\n\n通常表示接口路径错误。\n\n可能原因：\n\n- Base URL 填写错误\n- `/v1` 重复或缺失\n- 使用了错误的接口路径\n- 将原生 Claude 接口当成兼容接口调用\n- 接口版本发生变化\n\n需要确认平台要求的是：\n\n```text\n/v1/chat/completions\n```\n\n还是：\n\n```text\n/v1/messages\n```\n\n---\n\n### 429 Too Many Requests\n\n通常表示请求过于频繁、并发超限或账户额度不足。\n\n处理方法包括：\n\n- 降低并发数量\n- 增加请求间隔\n- 使用指数退避重试\n- 设置请求队列\n- 检查账户余额和调用额度\n- 减少无意义的重复请求\n\n简单的重试逻辑示例：\n\n```python\nimport time\nimport requests\n\nfor attempt in range(3):\n    response = requests.post(\n        url,\n        json=payload,\n        headers=headers,\n        timeout=60\n    )\n\n    if response.status_code != 429:\n        break\n\n    time.sleep(2 ** attempt)\n\nresponse.raise_for_status()\nprint(response.json())\n```\n\n生产环境中还应根据接口返回的错误信息和限流响应头进行更精确的重试控制。\n\n---\n\n### 500 或 503 错误\n\n这类错误通常表示服务端暂时异常、上游服务波动或请求超时。\n\n可以尝试：\n\n- 稍后重试\n- 降低请求并发\n- 缩短请求内容\n- 检查平台服务状态\n- 联系平台客服确认\n- 为业务增加超时和失败兜底逻辑\n\n---\n\n## Claude API 接入时的安全建议\n\n不要在浏览器前端直接调用 Claude API。\n\n错误示例：\n\n```javascript\nconst apiKey = \"YOUR_API_KEY\";\n```\n\n前端代码会被用户查看，API Key 一旦暴露，可能被他人盗用。\n\n更安全的架构是：\n\n```text\n用户浏览器 -\u003e 你的后端服务 -\u003e Claude API\n```\n\n后端服务负责：\n\n- 保存 API Key\n- 校验用户身份\n- 限制请求频率\n- 控制调用参数\n- 记录使用量\n- 处理错误和重试\n- 返回必要的模型结果\n\n同时建议：\n\n- 使用环境变量保存密钥\n- 为不同环境使用不同 API Key\n- 限制单个用户的调用次数\n- 记录异常请求\n- 定期检查调用日志\n- 及时禁用泄露的 Key\n\n---\n\n## Claude 中转站怎么选\n\n选择 Claude 中转站时，可以重点查看以下方面：\n\n### 是否支持 Claude API\n\n需要确认平台提供的是 Claude API，而不是只有网页端聊天功能。\n\n### 是否支持稳定的接口格式\n\n如果你已有 OpenAI SDK 或相关代码，可以优先确认平台是否支持 OpenAI 兼容格式。\n\n### 模型是否满足需求\n\n确认平台是否提供你需要的 Claude 模型，以及模型名称和调用权限是否明确。\n\n### 价格是否透明\n\n需要查看：\n\n- 输入和输出的计费方式\n- 不同模型的价格\n- 是否有最低充值金额\n- 是否存在额外服务费用\n- 余额和用量如何查询\n\n### 是否提供开发文档\n\n完整的开发文档应至少包含：\n\n- Base URL\n- API Key 使用方式\n- 接口路径\n- 请求示例\n- 模型列表\n- 参数说明\n- 错误码说明\n\n### 是否有调用记录和余额管理\n\n调用日志有助于排查问题，也方便统计 Claude API 的使用量和成本。\n\n---\n\n## 总结：Claude API 国内怎么调用\n\nClaude API 国内调用的核心流程并不复杂：\n\n1. 选择支持 Claude API 的服务平台\n2. 获取 API Key\n3. 获取正确的 Base URL\n4. 确认平台支持的 Claude 模型名称\n5. 选择 Claude 原生格式或 OpenAI 兼容格式\n6. 使用 cURL、Python 或 SDK 发送测试请求\n7. 根据实际业务控制模型、上下文和调用成本\n\n如果你希望快速完成 Claude 接入，可以先使用最小请求验证接口是否正常，再逐步加入多轮对话、流式输出、文档分析和业务鉴权。\n\n**Claude 中转站平台地址：**\n\n\u003e \u003chttps://quanzil.com\u003e\n\n\u003e \u003chttps://quanzil.net\u003e"
+      </script>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div>© <span id="current-year"></span>  保留所有权利</div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <script>
+
+    const articleConfig = {
+  "title": "Claude中转站怎么用？Claude API国内调用与接入完整教程",
+  "summary": "Claude中转站怎么选？本文详细介绍Claude API是什么、Claude国内调用方式、Claude API接口配置、OpenAI兼容调用方法、cURL与Python示例、模型选择、计费和常见报错处理，帮助开发者快速完成Claude API接入。",
+  "author": "ai agent",
+  "published": "2026-09-22 00:00:00",
+  "canonical": "https://quanzil.com/articles/how-to-call-gpt-api-in-china.html",
+  "targetUrl": "https://quanzil.com/",
+  "targetLabel": "进入 API 中转站 →",
+  "siteName": "API ",
+  "siteTagline": "让技术更简单",
+  "brandMark": "AI",
+  "homeUrl": "https://quanzil.com/",
+  "articlesUrl": "https://quanzil.com/pricing",
+  "docsUrl": "https://docs.quanzil.com/",
+  "pricingUrl": "https://quanzil.com/news/focus"
+};
+
+    const formatDate = value => new Intl.DateTimeFormat('zh-CN', {
+      year: 'numeric', month: '2-digit', day: '2-digit'
+    }).format(new Date(value));
+
+    document.title = `${articleConfig.title}｜网站名称`;
+    document.getElementById('site-brand').href = articleConfig.homeUrl;
+    document.getElementById('brand-name').textContent = articleConfig.siteName;
+    document.getElementById('brand-tagline').textContent = articleConfig.siteTagline;
+    document.getElementById('brand-mark').textContent = articleConfig.brandMark;
+    document.getElementById('nav-home').href = articleConfig.homeUrl;
+    document.getElementById('nav-articles').href = articleConfig.articlesUrl;
+    document.getElementById('nav-docs').href = articleConfig.docsUrl;
+    document.getElementById('nav-pricing').href = articleConfig.pricingUrl;
+    document.getElementById('article-title').textContent = articleConfig.title;
+    document.getElementById('article-summary').textContent = articleConfig.summary;
+    document.getElementById('article-author').textContent = articleConfig.author;
+    const headerTarget = document.getElementById('header-target');
+    headerTarget.href = articleConfig.targetUrl;
+    headerTarget.textContent = articleConfig.targetLabel;
+    document.getElementById('publish-date').textContent = formatDate(articleConfig.published);
+    document.getElementById('publish-date').dateTime = articleConfig.published;
+
+    const updated = new Date();
+    const updateDate = updated.toISOString().slice(0, 10);
+    document.getElementById('update-date').textContent = formatDate(updateDate);
+    document.getElementById('update-date').dateTime = updateDate;
+    document.getElementById('current-year').textContent = updated.getFullYear();
+
+    const markdownSource = document.getElementById('article-markdown');
+    const markdown = markdownSource.type === 'application/json'
+      ? JSON.parse(markdownSource.textContent)
+      : markdownSource.textContent.trim().replaceAll('<\\/script>', '<' + '/script>');
+    const markdownContent = document.getElementById('markdown-content');
+    if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+      const rendered = marked.parse(markdown, { gfm: true, breaks: false });
+      markdownContent.innerHTML = DOMPurify.sanitize(rendered);
+    } else {
+
+      markdownContent.textContent = markdown;
+      markdownContent.style.whiteSpace = 'pre-wrap';
+      markdownContent.style.overflowWrap = 'anywhere';
+    }
+
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: articleConfig.title,
+      description: articleConfig.summary,
+      author: { '@type': 'Person', name: articleConfig.author },
+      datePublished: articleConfig.published,
+      dateModified: updateDate,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': articleConfig.canonical }
+    };
+    const schemaScript = document.createElement('script');
+    schemaScript.type = 'application/ld+json';
+    schemaScript.textContent = JSON.stringify(schema);
+    document.head.appendChild(schemaScript);
+  </script>
+</body>
+</html>
